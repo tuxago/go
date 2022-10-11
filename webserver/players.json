@@ -1,0 +1,10 @@
+{
+	"Players":
+	[
+		{"Name":"Pepper",	"Wins":0, "TotalGames":9, "Team":"Red"},
+		{"Name":"Jhon",		"Wins":1, "TotalGames":8, "Team":"Blue"},
+		{"Name":"Louis",	"Wins":2, "TotalGames":7, "Team":"Purpel"},
+		{"Name":"Paul",		"Wins":3, "TotalGames":6, "Team":"Blue"},
+		{"Name":"Mia",		"Wins":4, "TotalGames":5, "Team":"White"}
+	]
+}
