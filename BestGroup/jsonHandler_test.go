@@ -6,7 +6,7 @@ import (
 
 var Json string = "test.json"
 
-func TestInitAndSaveJSON(t *testing.T) {
+func TestInitJSON(t *testing.T) {
 	t.Run("TestInitJSON", func(t *testing.T) {
 		err := InitJSON(Json, &Players)
 		//if Players is empty, then the test fails
@@ -14,6 +14,9 @@ func TestInitAndSaveJSON(t *testing.T) {
 			t.Errorf("Error in InitJSON, %v", err)
 		}
 	})
+}
+
+func TestSaveJSON(t *testing.T) {
 	t.Run("TestSaveJSON", func(t *testing.T) {
 		err := InitJSON(Json, &Players)
 		if err != nil {
@@ -35,6 +38,31 @@ func TestInitAndSaveJSON(t *testing.T) {
 		}
 	})
 
+}
+
+func TestAddPlayer(t *testing.T) {
+	t.Run("TestAddPlayer", func(t *testing.T) {
+		err := InitJSON(Json, &Players)
+		if err != nil {
+			t.Errorf("Error in InitJSON")
+		}
+		err = AddPlayer("Test1")
+		if err != nil {
+			t.Errorf("Error in AddPlayer")
+		}
+		err = SaveJSON(Json)
+		if err != nil {
+			t.Errorf("Error in SaveJSON")
+		}
+		err = InitJSON(Json, &Players)
+		if err != nil {
+			t.Errorf("Error in second InitJSON")
+		}
+		player, err := GetPlayer("Test1")
+		if player.Name != "Test1" || err != nil {
+			t.Errorf("Players.JPlayers does not contain Name : Test with Wins :0, or an error : %v", err)
+		}
+	})
 }
 
 func TestSetPlayer(t *testing.T) {
@@ -79,6 +107,10 @@ func TestRemovePlayer(t *testing.T) {
 			t.Errorf("Error in InitJSON")
 		}
 		err = RemovePlayer("Test")
+		if err != nil {
+			t.Errorf("Error in RemovePlayer")
+		}
+		err = RemovePlayer("Test1")
 		if err != nil {
 			t.Errorf("Error in RemovePlayer")
 		}
