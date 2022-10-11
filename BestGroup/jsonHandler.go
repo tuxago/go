@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -57,7 +56,6 @@ func SaveJSON(jsonI string) error {
 	}
 
 	//write to file
-	fmt.Println(string(jsonData))
 	_, err = jsonFile.Write(jsonData)
 	if err != nil {
 		return err

@@ -42,7 +42,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		PlayerServer(response, request)
 		got := response.Body.String()
 
-		want := "20"
+		want := "300"
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
 		}
@@ -53,7 +53,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		PlayerServer(response, request)
 		got := response.Body.String()
 
-		want := "0"
+		want := "400"
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
 		}
@@ -65,7 +65,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		request, _ = http.NewRequest(http.MethodGet, "/players/Salt", nil)
 		response = httptest.NewRecorder()
 		PlayerServer(response, request)
-		want := "1"
+		want := "401"
 		got := response.Body.String()
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
@@ -79,7 +79,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		request, _ = http.NewRequest(http.MethodGet, "/players/Pepper", nil)
 		response = httptest.NewRecorder()
 		PlayerServer(response, request)
-		want := "22"
+		want := "302"
 		got := response.Body.String()
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
@@ -97,7 +97,5 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 			t.Errorf("got %q, want %q", got, want)
 		}
 	})
-
-
 
 }
