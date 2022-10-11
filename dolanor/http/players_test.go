@@ -32,11 +32,11 @@ func TestPlayersService(t *testing.T) {
 		Name string
 	}
 
-	var got []player
-	want := []player{
-		{Name: "Pepper"},
-		{Name: "Jason"},
-		{Name: "Alix"},
+	var got []string
+	want := []string{
+		"Pepper",
+		"Jason",
+		"Alix",
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&got)
@@ -44,7 +44,7 @@ func TestPlayersService(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if reflect.DeepEqual(got, want) {
+	if !reflect.DeepEqual(got, want) {
 		t.Fatal("wrong list of players")
 	}
 
