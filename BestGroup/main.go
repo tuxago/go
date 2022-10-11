@@ -12,6 +12,7 @@ var PlayerWins = map[string]int{
 }
 
 func main() {
+	InitJSON("players.json", &Players)
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
