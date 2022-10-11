@@ -25,15 +25,15 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players")
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := GetPlayers()
+			list, err := FormatPlayers("")
 			if err != nil {
 			} else {
-			fmt.Fprint(w,list)
+				fmt.Fprint(w, list)
 			}
 		} else {
-			fmt.Fprint(w,"No player name called")
+			fmt.Fprint(w, "No player name called")
 		}
-	return
+		return
 	}
 	player = player[1:]
 	//get or post
@@ -41,15 +41,15 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		wins, err := SetPlayer(player)
 		if err != nil {
-			fmt.Fprint(w,"Player " + player + " doesn't exist")
-		}	else {
-			fmt.Fprint(w,wins)
+			fmt.Fprint(w, "Player "+player+" doesn't exist")
+		} else {
+			fmt.Fprint(w, wins)
 		}
 
 	case http.MethodGet:
 		_player, err := GetPlayer(player)
 		if err != nil {
-			fmt.Fprint(w, "Player " + player + " doesn't exist")
+			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
 			fmt.Fprint(w, _player.Wins)
 		}

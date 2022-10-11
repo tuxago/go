@@ -128,3 +128,19 @@ func TestRemovePlayer(t *testing.T) {
 		}
 	})
 }
+
+func TestFormatPlayers(t *testing.T) {
+	t.Run("TestFormatPlayers", func(t *testing.T) {
+		err := InitJSON(Json, &Players)
+		if err != nil {
+			t.Errorf("Error in InitJSON")
+		}
+		players, err := FormatPlayers("")
+		if err != nil {
+			t.Errorf("Error in GetPlayers")
+		}
+		if len(players) == 0 {
+			t.Errorf("GetPlayers returned an empty list")
+		}
+	})
+}
