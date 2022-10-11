@@ -8,10 +8,10 @@ import (
 )
 
 var expectedScores = map[string]int{
-	"Pepper":  20,
-	"Jhon":    20,
-	"Brendon": 10,
-	"Louis":   30}
+	"Pepper":  0,
+	"Jhon":    1,
+	"Brendon": -1,
+	"Louis":   2}
 
 func TestGETPlayers(t *testing.T) {
 	for name, score := range expectedScores {
@@ -25,7 +25,9 @@ func TestGETPlayers(t *testing.T) {
 			want := strconv.Itoa(score)
 
 			if got != want {
-				t.Errorf("got %q, want %q", got, want)
+				if !(got == "This player does not exist" && want == "-1") {
+					t.Errorf("got %q, want %q", got, want)
+				}
 			}
 		})
 	}
