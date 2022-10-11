@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -24,14 +25,32 @@ func main() {
 }
 
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
-	name := strings.Split(r.URL.Path, "/")[2]
+	split := strings.Split(r.URL.Path, "/")
+	name := ""
+	if len(split) >= 2 {
+		name = split[2]
+	}
 
 	if r.Method == http.MethodGet {
-		score := GetScore(name)
-		fmt.Fprint(w, score)
+		if name == "" {
+			names := GetPlayerList()
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(names)
+		} else {
+			score := GetScore(name)
+			fmt.Fprint(w, score)
+		}
 	} else {
 		IncreaseScore(name)
 	}
+}
+
+func GetPlayerList() []string {
+	names := []string{}
+	for _, player := range players {
+		names = append(names, player.Name)
+	}
+	return names
 }
 
 func GetPlayer(name string) *Player {

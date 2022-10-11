@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -32,6 +33,20 @@ func TestGETSalt(t *testing.T) {
 
 	got := response.Body.String()
 	want := "10"
+
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestGETPlayerList(t *testing.T) {
+	request, _ := http.NewRequest(http.MethodGet, "/players/", nil)
+	response := httptest.NewRecorder()
+
+	PlayerServer(response, request)
+
+	got := response.Body.String()
+	want := "[\"Pepper\",\"Salt\",\"Paprika\"]\n"
 
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
@@ -79,5 +94,14 @@ func TestPlayers(t *testing.T) {
 	wantCurry := -1
 	if gotCurry != wantCurry {
 		t.Errorf("got %d, want %d", gotCurry, wantCurry)
+	}
+}
+
+func TestPlayerList(t *testing.T) {
+	got := GetPlayerList()
+	want := []string{"Pepper", "Salt", "Paprika"}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("go %v, want %v", got, want)
 	}
 }
