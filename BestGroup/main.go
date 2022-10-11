@@ -23,9 +23,8 @@ func main() {
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//trim the /players/ from the request
 	player := strings.TrimPrefix(r.URL.Path, "/players")
-	if player == "" || player == "/" {
-		fmt.Fprint(w, "No player name called")
-		return
+	if (player == "" || player == "/" ) && r.Method == http.methodGet {
+		fmt.Fprint(w,GetPlayers)
 	}
 	player = player[1:]
 	//get or post
