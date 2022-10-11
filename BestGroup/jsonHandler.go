@@ -111,8 +111,13 @@ func AddPlayer(name string) error {
 	return nil
 }
 
-func GetPlayers() JPlayers {
+func GetPlayers() (string, error) {
 	muPlayers.RLock()
 	defer muPlayers.RUnlock()
-	return Players
+	// convert to json
+	jsonData, err := json.Marshal(Players)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonData), nil
 }
