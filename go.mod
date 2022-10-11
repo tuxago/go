@@ -1,3 +1,3 @@
-module github.com/JasonGROSSO/go
+module github.com/tuxago/go
 
 go 1.19
