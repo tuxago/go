@@ -76,16 +76,17 @@ func GetPlayer(name string) (JPlayer, error) {
 	return JPlayer{}, errors.New("player not found in getplayer")
 }
 
-func SetPlayer(name string, wins int) error {
+func SetPlayer(name string) (int, error) {
 	muPlayers.Lock()
 	defer muPlayers.Unlock()
 	for i, player := range Players.Players {
 		if player.Name == name {
+			wins := Players.Players[i].Wins + 1
 			Players.Players[i].Wins = wins
-			return nil
+			return wins, nil
 		}
 	}
-	return errors.New("player not found in setplayer")
+	return -1, errors.New("player not found in setplayer")
 }
 
 func RemovePlayer(name string) error {

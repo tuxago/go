@@ -31,25 +31,19 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//get or post
 	switch r.Method {
 	case http.MethodPost:
-		SETPlayerWins(player)
+		wins, err := SetPlayer(player)
+		if err != nil {
+			fmt.Fprint(w,"Player " + player + " doesn't exist")
+		}	else {
+			fmt.Fprint(w,wins)
+		}
+
 	case http.MethodGet:
-		wins:= GETPlayerWins(player)
-		if wins == -1 {
+		_player, err := GetPlayer(player)
+		if err != nil {
 			fmt.Fprint(w, "Player " + player + " doesn't exist")
 		} else {
-			fmt.Fprint(w, wins)
+			fmt.Fprint(w, _player.Wins)
 		}
 	}
-}
-func GETPlayerWins(name string) int {
-	wins, ok := PlayerWins[name]
-	if ok {
-		return wins
-	}
-
-	return -1
-}
-
-func SETPlayerWins(name string) {
-	PlayerWins[name]++
 }
