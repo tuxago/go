@@ -24,9 +24,11 @@ func main() {
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//trim the /players/ from the request
 	player := strings.TrimPrefix(r.URL.Path, "/players")
+	// check if the option ?format is present and get the value
+	format := r.URL.Query().Get("format")
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := FormatPlayers("")
+			list, err := FormatPlayers(format)
 			if err != nil {
 			} else {
 				fmt.Fprint(w, list)
