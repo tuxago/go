@@ -1,4 +1,4 @@
-package main
+package json_handler
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ var Json string = "test.json"
 
 func TestInitJSON(t *testing.T) {
 	t.Run("TestInitJSON", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		//if Players is empty, then the test fails
 		if err != nil {
 			t.Errorf("Error in InitJSON, %v", err)
@@ -18,7 +18,7 @@ func TestInitJSON(t *testing.T) {
 
 func TestSaveJSON(t *testing.T) {
 	t.Run("TestSaveJSON", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON %v", err)
 		}
@@ -28,7 +28,7 @@ func TestSaveJSON(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error in SaveJSON %v", err)
 		}
-		err = InitJSON(Json, &Players)
+		err = InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON %v", err)
 		}
@@ -42,7 +42,7 @@ func TestSaveJSON(t *testing.T) {
 
 func TestAddPlayer(t *testing.T) {
 	t.Run("TestAddPlayer", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
@@ -54,7 +54,7 @@ func TestAddPlayer(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error in SaveJSON")
 		}
-		err = InitJSON(Json, &Players)
+		err = InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON")
 		}
@@ -67,7 +67,7 @@ func TestAddPlayer(t *testing.T) {
 
 func TestSetPlayer(t *testing.T) {
 	t.Run("TestSetPlayer 'Test' wins", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
@@ -80,7 +80,7 @@ func TestSetPlayer(t *testing.T) {
 		}
 	})
 	t.Run("TestSetPlayer 'Test123' wins and get error", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
@@ -92,7 +92,7 @@ func TestSetPlayer(t *testing.T) {
 }
 
 func TestGetPlayer(t *testing.T) {
-	InitJSON(Json, &Players)
+	InitJSON(Json)
 	//if GetPlayer returns an empty JPlayer, then the test fails
 	player, err := GetPlayer("Test")
 	if player == (JPlayer{}) || err != nil {
@@ -102,7 +102,7 @@ func TestGetPlayer(t *testing.T) {
 
 func TestRemovePlayer(t *testing.T) {
 	t.Run("TestRemoveJSON", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
@@ -118,7 +118,7 @@ func TestRemovePlayer(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error in SaveJSON")
 		}
-		err = InitJSON(Json, &Players)
+		err = InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON")
 		}
@@ -131,7 +131,7 @@ func TestRemovePlayer(t *testing.T) {
 
 func TestFormatPlayers(t *testing.T) {
 	t.Run("TestFormatPlayers", func(t *testing.T) {
-		err := InitJSON(Json, &Players)
+		err := InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}

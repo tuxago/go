@@ -1,4 +1,4 @@
-package main
+package json_handler
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ var (
 	Players   JPlayers
 )
 
-func InitJSON(jsonI string, pointer *JPlayers) error {
+func InitJSON(jsonI string) error {
 	jsonFile, err := os.Open(jsonI)
 	if err != nil {
 		return err

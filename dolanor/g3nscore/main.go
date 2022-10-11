@@ -2,8 +2,10 @@ package main
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/g3n/engine/app"
@@ -20,6 +22,20 @@ import (
 	"github.com/g3n/engine/texture"
 	"github.com/g3n/engine/window"
 )
+
+var title *gui.Label
+
+// Deserialize JPlayers
+type JPlayers struct {
+	Players []JPlayer
+}
+
+type JPlayer struct {
+	Name string
+	Wins int
+}
+
+var numbWins = 0
 
 //go:embed earth.vert
 var shaderEarthVertex string
@@ -54,13 +70,37 @@ func main() {
 	}
 	a.Subscribe(window.OnWindowSize, onResize)
 	onResize("", nil)
+	go func() {
+		//update player wins from server http://localhost:8080/wins
+		for range time.Tick(1 * time.Second) {
+			wins, err := http.Get("http://localhost:8080/players")
+			if err != nil {
+				log.Println(err)
+				//avoid crash
+				continue
+			}
+			defer wins.Body.Close()
+			var players JPlayers
+			err = json.NewDecoder(wins.Body).Decode(&players)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			for _, player := range players.Players {
+				if player.Name == "John" {
+					numbWins = player.Wins
+				}
+			}
+			title.SetText(fmt.Sprintf("WINS: %d", numbWins))
+			// wins.Body.Close()
+		}
+	}()
 
 	a.Run(func(renderer *renderer.Renderer, deltaTime time.Duration) {
 		a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
 		renderer.Render(scene, cam)
 		e.Update(deltaTime)
 	})
-
 }
 
 func (e *Earth) setupGUI() {
@@ -73,8 +113,8 @@ func (e *Earth) setupGUI() {
 	e.scene.Add(e.mainPanel)
 	gui.Manager().Set(e.mainPanel)
 
-	headerColor := math32.Color4{13.0 / 256.0, 41.0 / 256.0, 62.0 / 256.0, 1}
-	lightTextColor := math32.Color4{0.8, 0.8, 0.8, 1}
+	headerColor := math32.Color4{R: 13.0 / 256.0, G: 41.0 / 256.0, B: 62.0 / 256.0, A: 1}
+	lightTextColor := math32.Color4{R: 0.8, G: 0.8, B: 0.8, A: 1}
 	header := gui.NewPanel(600, 40)
 	header.SetBorders(0, 0, 1, 0)
 	header.SetPaddings(4, 4, 4, 4)
@@ -88,10 +128,10 @@ func (e *Earth) setupGUI() {
 
 	// Header title
 	const fontSize = 50
-	title := gui.NewLabel(" ")
+	title = gui.NewLabel(" ")
 	title.SetFontSize(fontSize)
 	title.SetLayoutParams(&gui.HBoxLayoutParams{AlignV: gui.AlignCenter})
-	title.SetText(fmt.Sprintf("WINS: %d", 31))
+	title.SetText(fmt.Sprintf("WINS: %d", numbWins))
 	title.SetColor4(&lightTextColor)
 	header.Add(title)
 }
@@ -108,15 +148,15 @@ type Earth struct {
 func (e *Earth) start() {
 	// Create Skybox
 	skybox, err := graphic.NewSkybox(graphic.SkyboxData{
-		"./images/space/dark-s_", "jpg",
-		[6]string{"px", "nx", "py", "ny", "pz", "nz"}})
+		DirAndPrefix: "./images/space/dark-s_", Extension: "jpg",
+		Suffixes: [6]string{"px", "nx", "py", "ny", "pz", "nz"}})
 	if err != nil {
 		panic(err)
 	}
 	e.scene.Add(skybox)
 
 	// Adds directional front light
-	dir1 := light.NewDirectional(&math32.Color{1, 1, 1}, 0.9)
+	dir1 := light.NewDirectional(&math32.Color{R: 1, G: 1, B: 1}, 0.9)
 	dir1.SetPosition(0, 0, 100)
 	e.scene.Add(dir1)
 
@@ -142,7 +182,7 @@ func (e *Earth) start() {
 	//texBump, err := newTexture("./images/earth_bump_big.jpg")
 
 	// Create custom material using the custom shader
-	matEarth := NewEarthMaterial(&math32.Color{1, 1, 1})
+	matEarth := NewEarthMaterial(&math32.Color{R: 1, G: 1, B: 1})
 	matEarth.SetShininess(20)
 	//matEarth.SetSpecularColor(&math32.Color{0., 1, 1})
 	//matEarth.SetColor(&math32.Color{0.8, 0.8, 0.8})
@@ -160,7 +200,7 @@ func (e *Earth) start() {
 	if err != nil {
 		log.Fatalf("Error loading texture: %s", err)
 	}
-	sunMat := material.NewStandard(&math32.Color{1, 1, 1})
+	sunMat := material.NewStandard(&math32.Color{R: 1, G: 1, B: 1})
 	sunMat.AddTexture(texSun)
 	sunMat.SetTransparent(true)
 	sun := graphic.NewSprite(10, 10, sunMat)

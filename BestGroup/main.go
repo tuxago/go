@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TeamGo/json_handler"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,7 +13,8 @@ var PlayerWins = map[string]int{
 }
 
 func main() {
-	InitJSON("players.json", &Players)
+	//init the json_handler package
+	json_handler.InitJSON("players.json")
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -28,7 +30,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	format := r.URL.Query().Get("format")
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := FormatPlayers(format)
+			list, err := json_handler.FormatPlayers(format)
 			if err != nil {
 			} else {
 				fmt.Fprint(w, list)
@@ -42,7 +44,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//get or post
 	switch r.Method {
 	case http.MethodPost:
-		wins, err := SetPlayer(player)
+		wins, err := json_handler.SetPlayer(player)
 		if err != nil {
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
@@ -50,7 +52,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodGet:
-		_player, err := GetPlayer(player)
+		_player, err := json_handler.GetPlayer(player)
 		if err != nil {
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
