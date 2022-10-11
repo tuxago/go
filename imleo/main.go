@@ -6,10 +6,15 @@ import (
 	"strings"
 )
 
-var scores = map[string]int{
-	"Pepper":  20,
-	"Salt":    10,
-	"Paprika": 30,
+type Player struct {
+	Name  string
+	Score int
+}
+
+var players = []Player{
+	{"Pepper", 20},
+	{"Salt", 10},
+	{"Paprika", 30},
 }
 
 func main() {
@@ -29,24 +34,39 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetPlayer(name string) *Player {
+	for _, player := range players {
+		if player.Name == name {
+			return &player
+		}
+	}
+	return nil
+}
+
 func GetScore(name string) int {
-	return scores[name]
+	player := GetPlayer(name)
+	if player == nil {
+		return -1
+	}
+	return player.Score
+}
+
+func SetScore(name string, score int) int {
+	for i, player := range players {
+		if player.Name == name {
+			players[i].Score = score
+			return players[i].Score
+		}
+	}
+	return -1
 }
 
 func IncreaseScore(name string) int {
-	score := GetScore(name)
-	score += 1
-	scores[name] = score
-	return score
+	return SetScore(name, GetScore(name)+1)
 }
 
 func resetScores() {
-	// for name := range scores {
-	// 	scores[name] = 0
-	// }
-	scores = map[string]int{
-		"Pepper":  20,
-		"Salt":    10,
-		"Paprika": 30,
+	for _, player := range players {
+		player.Score = 0
 	}
 }
