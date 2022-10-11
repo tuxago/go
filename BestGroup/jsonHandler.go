@@ -98,3 +98,21 @@ func RemovePlayer(name string) error {
 	}
 	return errors.New("player not found in removeplayer")
 }
+
+func AddPlayer(name string) error {
+	muPlayers.Lock()
+	defer muPlayers.Unlock()
+	for _, player := range Players.Players {
+		if player.Name == name {
+			return errors.New("player already exists")
+		}
+	}
+	Players.Players = append(Players.Players, JPlayer{Name: name, Wins: 0})
+	return nil
+}
+
+func GetPlayers() JPlayers {
+	muPlayers.RLock()
+	defer muPlayers.RUnlock()
+	return Players
+}
