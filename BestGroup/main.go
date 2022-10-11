@@ -23,7 +23,7 @@ func main() {
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//trim the /players/ from the request
 	player := strings.TrimPrefix(r.URL.Path, "/players")
-	if (player == "" || player == "/" ) && r.Method == http.MethodGet {
+	if player == "" || ( player == "/"  && r.Method == http.MethodGet ) {
 		list, err := GetPlayers()
 		if err != nil {
 			return
