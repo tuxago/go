@@ -38,7 +38,7 @@ func TestInitAndSaveJSON(t *testing.T) {
 }
 
 func TestSetPlayer(t *testing.T) {
-	t.Run("TestSetPlayer 'Test' wins to 4", func(t *testing.T) {
+	t.Run("TestSetPlayer 'Test' wins", func(t *testing.T) {
 		err := InitJSON(Json, &Players)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
@@ -49,6 +49,16 @@ func TestSetPlayer(t *testing.T) {
 		}
 		if wins == -1 || err != nil {
 			t.Errorf("Players.JPlayers does not contain Name : Test with Wins :4, or an error : %v", err)
+		}
+	})
+	t.Run("TestSetPlayer 'Test123' wins and get error", func(t *testing.T) {
+		err := InitJSON(Json, &Players)
+		if err != nil {
+			t.Errorf("Error in InitJSON")
+		}
+		_, err = SetPlayer("Test123")
+		if err == nil {
+			t.Errorf("no error in SetPlayer")
 		}
 	})
 }
