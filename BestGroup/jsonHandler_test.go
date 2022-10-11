@@ -43,12 +43,11 @@ func TestSetPlayer(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		err = SetPlayer("Test", 4)
+		wins, err := SetPlayer("Test")
 		if err != nil {
 			t.Errorf("Error in SetPlayer")
 		}
-		player, err := GetPlayer("Test")
-		if player.Name != "Test" || player.Wins != 4 || err != nil {
+		if wins == -1 || err != nil {
 			t.Errorf("Players.JPlayers does not contain Name : Test with Wins :4, or an error : %v", err)
 		}
 	})
