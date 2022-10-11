@@ -1,10 +1,20 @@
 package main
 
-func Perimeter(a float64, b float64) float64 {
-	var result = (a + b) * 2
-	return result
+import "math"
+
+type Rectangle struct {
+	Width  float64
+	Height float64
 }
-func Area(c float64, d float64) float64 {
-	var result = c * d
-	return result
+
+func (r Rectangle) Area() float64 {
+	return r.Width * r.Height
+}
+
+type Circle struct {
+	Radius float64
+}
+
+func (c Circle) Area() float64 {
+	return math.Pi * c.Radius * c.Radius
 }
