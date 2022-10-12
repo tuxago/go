@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"sort"
+	"strings"
 )
 
 type Player struct {
@@ -122,5 +122,19 @@ func SortPlayersByName(players []Player) []Player {
 	})
 	return players
 }
-
-
+func TournamentPrizes(player []Player) []int {
+	player = SortPlayersByScore(player)
+	prizes := []int{}
+	for player := range player {
+		if player == 0 {
+			prizes = append(prizes, 100)
+		} else if player == 1 {
+			prizes = append(prizes, 50)
+		} else if player == 2 {
+			prizes = append(prizes, 25)
+		} else {
+			prizes = append(prizes, 0)
+		}
+	}
+	return prizes
+}
