@@ -46,7 +46,8 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		name = split[2]
 	}
 
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		if name == "" {
 			names := GetPlayerList()
 			w.Header().Set("Content-Type", "application/json")
@@ -55,8 +56,10 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 			score := GetScore(name)
 			fmt.Fprint(w, score)
 		}
-	} else {
+	case http.MethodPost:
 		IncreaseScore(name)
+	default:
+		fmt.Fprint(w, "unkown method")
 	}
 }
 

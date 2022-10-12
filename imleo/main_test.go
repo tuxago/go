@@ -7,13 +7,27 @@ import (
 	"testing"
 )
 
+func TestGETRoot(t *testing.T) {
+	request, _ := http.NewRequest(http.MethodGet, "/", nil)
+	response := httptest.NewRecorder()
+
+	RootServer(response, request)
+
+	got := response.Body.String()
+	want := "Hello"
+
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 func TestGETPepper(t *testing.T) {
 	SetScore("Pepper", 20)
 
 	request, _ := http.NewRequest(http.MethodGet, "/players/Pepper", nil)
 	response := httptest.NewRecorder()
 
-	PlayerServer(response, request)
+	RootServer(response, request)
 
 	got := response.Body.String()
 	want := "20"
@@ -29,7 +43,7 @@ func TestGETSalt(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodGet, "/players/Salt", nil)
 	response := httptest.NewRecorder()
 
-	PlayerServer(response, request)
+	RootServer(response, request)
 
 	got := response.Body.String()
 	want := "10"
@@ -43,13 +57,40 @@ func TestGETPlayerList(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodGet, "/players/", nil)
 	response := httptest.NewRecorder()
 
-	PlayerServer(response, request)
+	RootServer(response, request)
 
 	got := response.Body.String()
 	want := "[\"Pepper\",\"Salt\",\"Paprika\"]\n"
 
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
+	}
+
+	request, _ = http.NewRequest(http.MethodGet, "/players", nil)
+	response = httptest.NewRecorder()
+
+	RootServer(response, request)
+
+	got = response.Body.String()
+
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestPOSTPepper(t *testing.T) {
+	SetScore("Pepper", 20)
+	want := 21
+
+	request, _ := http.NewRequest(http.MethodPost, "/players/Pepper", nil)
+	response := httptest.NewRecorder()
+
+	RootServer(response, request)
+
+	got := GetScore("Pepper")
+
+	if got != want {
+		t.Errorf("got %d, want %d", got, want)
 	}
 }
 
