@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sort"
 )
 
 type Player struct {
@@ -107,3 +108,19 @@ func resetScores() {
 		player.Score = 0
 	}
 }
+
+func SortPlayersByScore(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Score > players[j].Score
+	})
+	return players
+}
+
+func SortPlayersByName(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Name < players[j].Name
+	})
+	return players
+}
+
+
