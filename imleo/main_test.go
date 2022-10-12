@@ -60,7 +60,7 @@ func TestGETPlayerList(t *testing.T) {
 	RootServer(response, request)
 
 	got := response.Body.String()
-	want := "[\"Pepper\",\"Salt\",\"Paprika\"]\n"
+	want := "[\"Paprika\",\"Pepper\",\"Salt\"]\n"
 
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
@@ -140,7 +140,11 @@ func TestPlayers(t *testing.T) {
 
 func TestPlayerList(t *testing.T) {
 	got := GetPlayerList()
-	want := []string{"Pepper", "Salt", "Paprika"}
+	want := []string{
+		"Paprika",
+		"Pepper",
+		"Salt",
+	}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("go %v, want %v", got, want)

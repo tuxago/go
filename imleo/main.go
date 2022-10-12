@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -68,6 +69,7 @@ func GetPlayerList() []string {
 	for _, player := range players {
 		names = append(names, player.Name)
 	}
+	sort.Strings(names)
 	return names
 }
 
