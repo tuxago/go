@@ -95,6 +95,9 @@ func getPlayerTeam(name string) string {
 }
 
 func URLSplit(url string) []string {
+	if url[len(url)-1] != '/' {
+		url += "/"
+	}
 	return strings.Split(url, "/")
 }
 
