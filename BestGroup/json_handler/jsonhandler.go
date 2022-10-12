@@ -118,7 +118,7 @@ func FormatPlayers(format string) (string, error) {
 	muPlayers.RLock()
 	defer muPlayers.RUnlock()
 	// sort players by name
-	sort.Slice(Players.Players, func(i, j int) bool {
+	sort.SliceStable(Players.Players, func(i, j int) bool {
 		return Players.Players[i].Name < Players.Players[j].Name
 	})
 
