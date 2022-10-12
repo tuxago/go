@@ -24,15 +24,16 @@ import (
 	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 )
 
-var title *gui.Label // title with wins
-
-var numbWins = 0 //number of wins
-
-//go:embed earth.vert
-var shaderEarthVertex string
-
-//go:embed earth.frag
-var shaderEarthFrag string
+var (
+	title    *gui.Label // title with wins
+	numbWins = 0        //number of wins
+	//go:embed earth.vert
+	shaderEarthVertex string
+	//go:embed earth.frag
+	shaderEarthFrag string
+	firstSrv        = "http://192.168.20.95:8080"
+	secondSrv       = "http://localhost:8080"
+)
 
 func main() {
 	a := app.App()
@@ -65,11 +66,11 @@ func main() {
 		//update player wins from server http://localhost:8080/players or http://192.168.20.95:8080/players
 		for range time.Tick(1 * time.Second) {
 			func() {
-				wins, err := http.Get("http://192.168.20.95:8080/players")
+				wins, err := http.Get(firstSrv + "/players")
 				if err != nil {
 					fmt.Println("First Server : ", err)
 					err = nil
-					wins, err = http.Get("http://localhost:8080/players")
+					wins, err = http.Get(secondSrv + "/players")
 					if err != nil {
 						fmt.Println("Second Server : ", err)
 						return
