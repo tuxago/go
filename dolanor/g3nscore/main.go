@@ -21,21 +21,12 @@ import (
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/texture"
 	"github.com/g3n/engine/window"
+	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 )
 
-var title *gui.Label
+var title *gui.Label // title with wins
 
-// Deserialize JPlayers
-type JPlayers struct {
-	Players []JPlayer
-}
-
-type JPlayer struct {
-	Name string
-	Wins int
-}
-
-var numbWins = 0
+var numbWins = 0 //number of wins
 
 //go:embed earth.vert
 var shaderEarthVertex string
@@ -71,28 +62,29 @@ func main() {
 	a.Subscribe(window.OnWindowSize, onResize)
 	onResize("", nil)
 	go func() {
-		//update player wins from server http://localhost:8080/wins
+		//update player wins from server http://localhost:8080/players
 		for range time.Tick(1 * time.Second) {
-			wins, err := http.Get("http://localhost:8080/players")
-			if err != nil {
-				log.Println(err)
-				//avoid crash
-				continue
-			}
-			defer wins.Body.Close()
-			var players JPlayers
-			err = json.NewDecoder(wins.Body).Decode(&players)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			for _, player := range players.Players {
-				if player.Name == "John" {
-					numbWins = player.Wins
+			func() {
+
+				wins, err := http.Get("http://192.168.20.95:8080/players")
+				if err != nil {
+					log.Println(err)
+					return //avoid crash
 				}
-			}
-			title.SetText(fmt.Sprintf("WINS: %d", numbWins))
-			// wins.Body.Close()
+				defer wins.Body.Close()                           // close wins.Body when function returns
+				var players jsonhandler.JPlayers                  // create a new instance of JPlayers struct
+				err = json.NewDecoder(wins.Body).Decode(&players) // decode the JSON into the struct
+				if err != nil {
+					log.Println(err)
+					return // avoid crash
+				}
+				for _, player := range players.Players {
+					if player.Name == "John" {
+						numbWins = player.Wins
+					}
+				}
+				title.SetText(fmt.Sprintf("All: %v", numbWins))
+			}()
 		}
 	}()
 
@@ -134,6 +126,7 @@ func (e *Earth) setupGUI() {
 	title.SetText(fmt.Sprintf("WINS: %d", numbWins))
 	title.SetColor4(&lightTextColor)
 	header.Add(title)
+
 }
 
 type Earth struct {

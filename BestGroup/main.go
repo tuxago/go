@@ -1,10 +1,11 @@
 package main
 
 import (
-	"TeamGo/json_handler"
 	"fmt"
 	"net/http"
 	"strings"
+
+	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 )
 
 var PlayerWins = map[string]int{
@@ -14,7 +15,7 @@ var PlayerWins = map[string]int{
 
 func main() {
 	//init the json_handler package
-	json_handler.InitJSON("players.json")
+	jsonhandler.InitJSON("players.json")
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -30,7 +31,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	format := r.URL.Query().Get("format")
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := json_handler.FormatPlayers(format)
+			list, err := jsonhandler.FormatPlayers(format)
 			if err != nil {
 			} else {
 				fmt.Fprint(w, list)
@@ -44,7 +45,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//get or post
 	switch r.Method {
 	case http.MethodPost:
-		wins, err := json_handler.SetPlayer(player)
+		wins, err := jsonhandler.SetPlayer(player)
 		if err != nil {
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
@@ -52,7 +53,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodGet:
-		_player, err := json_handler.GetPlayer(player)
+		_player, err := jsonhandler.GetPlayer(player)
 		if err != nil {
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {

@@ -1,4 +1,4 @@
-package json_handler
+package jsonhandler
 
 import (
 	"encoding/json"
