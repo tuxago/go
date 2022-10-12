@@ -32,8 +32,8 @@ func main() {
 }
 
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
-	if len(r.URL.Path) > 100 {
-		r.URL.Path = r.URL.Path[:100]
+	if len(r.URL.Path) > 50 {
+		r.URL.Path = r.URL.Path[:50]
 	}
 	logrequest(r)
 	//trim the /players/ from the request
