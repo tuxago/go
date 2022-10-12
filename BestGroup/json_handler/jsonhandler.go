@@ -1,10 +1,11 @@
-package main
+package jsonhandler
 
 import (
 	"encoding/json"
 	"errors"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -116,6 +117,11 @@ func AddPlayer(name string) error {
 func FormatPlayers(format string) (string, error) {
 	muPlayers.RLock()
 	defer muPlayers.RUnlock()
+	// sort players by name
+	sort.Slice(Players.Players, func(i, j int) bool {
+		return Players.Players[i].Name < Players.Players[j].Name
+	})
+
 	switch format {
 	case "string":
 		// Players to string in var str
