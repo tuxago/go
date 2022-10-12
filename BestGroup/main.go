@@ -16,6 +16,7 @@ var PlayerWins = map[string]int{
 func main() {
 	//init the json_handler package
 	jsonhandler.InitJSON("players.json")
+	backup()
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -60,4 +61,9 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, _player.Wins)
 		}
 	}
+}
+
+func backup() {
+	//backup the players.json file
+	jsonhandler.Backup(30, "save.json", "save2.json", "save3.json")
 }
