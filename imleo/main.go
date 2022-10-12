@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -35,6 +36,8 @@ func RootServer(w http.ResponseWriter, r *http.Request) {
 	switch sub {
 	case "players":
 		PlayerServer(w, r)
+	case "games":
+		GameServer(w, r)
 	default:
 		fmt.Fprint(w, "404: Not found")
 	}
@@ -61,6 +64,30 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		IncreaseScore(name)
 	default:
 		fmt.Fprint(w, "unkown method")
+	}
+}
+
+func GameServer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		fmt.Fprint(w, "unkown method")
+		return
+	}
+
+	split := strings.Split(r.URL.Path, "/")
+	id := -1
+	if len(split) >= 3 && split[2] != "" {
+		var err error
+		id, err = strconv.Atoi(split[2])
+		if err != nil {
+			fmt.Fprintf(w, "invalid id %q", split[2])
+			return
+		}
+	}
+
+	if id == -1 {
+		games := GetGameList()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(games)
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func TestGETRoot(t *testing.T) {
@@ -149,24 +148,5 @@ func TestPlayerList(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("go %v, want %v", got, want)
-	}
-}
-
-func TestGamesList(t *testing.T) {
-	setGames([]Game{
-		{0, time.Date(0, 5, 14, 0, 0, 0, 0, time.UTC), "Pepper", "Salt"},
-		{1, time.Date(0, 3, 22, 0, 0, 0, 0, time.UTC), "Pepper", "Paprika"},
-		{2, time.Date(0, 9, 1, 0, 0, 0, 0, time.UTC), "Salt", "Paprika"},
-	})
-
-	got := GetGameList()
-	want := []Game{
-		{1, time.Date(0, 3, 22, 0, 0, 0, 0, time.UTC), "Pepper", "Paprika"},
-		{0, time.Date(0, 5, 14, 0, 0, 0, 0, time.UTC), "Pepper", "Salt"},
-		{2, time.Date(0, 9, 1, 0, 0, 0, 0, time.UTC), "Salt", "Paprika"},
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
 	}
 }
