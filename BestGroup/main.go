@@ -32,11 +32,16 @@ func main() {
 }
 
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
+	if len(r.URL.Path) > 100 {
+		r.URL.Path = r.URL.Path[:100]
+	}
 	logrequest(r)
 	//trim the /players/ from the request
 	player := strings.TrimPrefix(r.URL.Path, "/players")
+
 	// check if the option ?format is present and get the value
 	format := r.URL.Query().Get("format")
+
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
 			list, err := jsonhandler.FormatPlayers(format)
@@ -80,6 +85,9 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 func logrequest(r *http.Request) {
 	logmutex.Lock()
 	defer logmutex.Unlock()
+	if len(r.URL.Path) > 42 {
+		r.URL.Path = r.URL.Path[:42]
+	}
 	ctime := time.Now().Format(time.RFC850)
 	logtext := "[" + ctime + "] Recieved " + r.URL.Path + " with " + r.Method + " method \n"
 	f, err := os.OpenFile(logfile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
