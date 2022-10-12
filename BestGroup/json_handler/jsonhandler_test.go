@@ -1,4 +1,4 @@
-package jsonhandler
+package main
 
 import (
 	"testing"

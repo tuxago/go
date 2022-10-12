@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+// use json_handler package
 func TestRequesting(t *testing.T) {
 	t.Run("call request with only /players/", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/players/", nil)
