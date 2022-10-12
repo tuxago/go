@@ -21,6 +21,7 @@ var logmutex sync.Mutex
 func main() {
 	//init the json_handler package
 	jsonhandler.InitJSON("players.json")
+	backup()
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -73,6 +74,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
 //[yyyy-mm-dd:hh-mm-ss-mmss] Recieved $URL with $METHOD
 func logrequest(r *http.Request) {
 	logmutex.Lock()
@@ -102,4 +104,8 @@ func loganswer(answer string) {
 	if _, err = f.WriteString(logtext); err != nil {
 		return
 	}
+
+func backup() {
+	//backup the players.json file
+	jsonhandler.Backup(30, "save.json", "save2.json", "save3.json")
 }

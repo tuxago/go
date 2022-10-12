@@ -5,8 +5,10 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"sync"
+	"time"
 )
 
 // Deserialize JPlayers
@@ -115,6 +117,11 @@ func AddPlayer(name string) error {
 func FormatPlayers(format string) (string, error) {
 	muPlayers.RLock()
 	defer muPlayers.RUnlock()
+	// sort players by name
+	sort.SliceStable(Players.Players, func(i, j int) bool {
+		return Players.Players[i].Name < Players.Players[j].Name
+	})
+
 	switch format {
 	case "string":
 		// Players to string in var str
@@ -161,4 +168,56 @@ func FormatPlayers(format string) (string, error) {
 		}
 		return string(jsonData), nil
 	}
+}
+
+// Make backups of the json file in 3 other files
+func Backup(timeMult int, jsonI2 string, jsonI3 string, jsonI4 string) {
+	// make a goroutine backup of the original file every 30 minute in jsonI2, jsonI3, jsonI4
+	go func() {
+		nbrTrack := 0
+		for range time.Tick(time.Duration(timeMult) * time.Minute) {
+			func() {
+				muPlayers.Lock()
+				defer muPlayers.Unlock()
+				var jsonFile *os.File
+				var err error
+				switch nbrTrack {
+				case 0:
+					// open output files
+					jsonFile, err = os.OpenFile(jsonI2, os.O_WRONLY|os.O_TRUNC, 0644)
+					if err != nil {
+						return
+					}
+				case 1:
+					jsonFile, err = os.OpenFile(jsonI2, os.O_WRONLY|os.O_TRUNC, 0644)
+					if err != nil {
+						return
+					}
+				default:
+					jsonFile, err = os.OpenFile(jsonI2, os.O_WRONLY|os.O_TRUNC, 0644)
+					if err != nil {
+						return
+					}
+				}
+
+				defer jsonFile.Close()
+
+				// convert to json
+				jsonData, err := json.Marshal(Players)
+				if err != nil {
+					return
+				}
+
+				//write to file
+				_, err = jsonFile.Write(jsonData)
+				if err != nil {
+					return
+				}
+				nbrTrack++
+				if nbrTrack > 2 {
+					nbrTrack = 0
+				}
+			}()
+		}
+	}()
 }
