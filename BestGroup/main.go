@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strings"
-	"time"
-	"sync"
 	"os"
+	"strings"
+	"sync"
+	"time"
+
 	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 )
 
@@ -56,7 +57,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		wins, err := jsonhandler.SetPlayer(player)
 		if err != nil {
-			loganswer("Player "+player+" doesn't exist")
+			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
 			loganswer(fmt.Sprint(wins))
@@ -66,7 +67,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		_player, err := jsonhandler.GetPlayer(player)
 		if err != nil {
-			loganswer("Player "+player+" doesn't exist")
+			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
 		} else {
 			loganswer(fmt.Sprint(_player.Wins))
@@ -75,7 +76,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//[yyyy-mm-dd:hh-mm-ss-mmss] Recieved $URL with $METHOD
+// [yyyy-mm-dd:hh-mm-ss-mmss] Recieved $URL with $METHOD
 func logrequest(r *http.Request) {
 	logmutex.Lock()
 	defer logmutex.Unlock()
@@ -104,6 +105,7 @@ func loganswer(answer string) {
 	if _, err = f.WriteString(logtext); err != nil {
 		return
 	}
+}
 
 func backup() {
 	//backup the players.json file
