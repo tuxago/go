@@ -62,20 +62,24 @@ func main() {
 	a.Subscribe(window.OnWindowSize, onResize)
 	onResize("", nil)
 	go func() {
-		//update player wins from server http://localhost:8080/players
+		//update player wins from server http://localhost:8080/players or http://192.168.20.95:8080/players
 		for range time.Tick(1 * time.Second) {
 			func() {
-
 				wins, err := http.Get("http://192.168.20.95:8080/players")
 				if err != nil {
-					log.Println(err)
-					return //avoid crash
+					fmt.Println("First Server : ", err)
+					err = nil
+					wins, err = http.Get("http://localhost:8080/players")
+					if err != nil {
+						fmt.Println("Second Server : ", err)
+						return
+					}
 				}
 				defer wins.Body.Close()                           // close wins.Body when function returns
 				var players jsonhandler.JPlayers                  // create a new instance of JPlayers struct
 				err = json.NewDecoder(wins.Body).Decode(&players) // decode the JSON into the struct
 				if err != nil {
-					log.Println(err)
+					fmt.Println(err)
 					return // avoid crash
 				}
 				for _, player := range players.Players {
