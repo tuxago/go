@@ -19,15 +19,30 @@ var players = []Player{
 }
 
 func main() {
-	http.HandleFunc("/players/", PlayerServer)
+	http.HandleFunc("/", RootServer)
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("starting the server on port 8080")
+}
+
+func RootServer(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		fmt.Fprint(w, "Hello")
+		return
+	}
+
+	sub := strings.Split(r.URL.Path, "/")[1]
+	switch sub {
+	case "players":
+		PlayerServer(w, r)
+	default:
+		fmt.Fprint(w, "404: Not found")
+	}
 }
 
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, "/")
 	name := ""
-	if len(split) >= 2 {
+	if len(split) >= 3 {
 		name = split[2]
 	}
 
