@@ -1,12 +1,41 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
 )
+
+func TestGETGame(t *testing.T) {
+	games := []Game{
+		{0, time.Date(0, 5, 14, 0, 0, 0, 0, time.UTC), "Pepper", "Salt"},
+		{1, time.Date(0, 3, 22, 0, 0, 0, 0, time.UTC), "Pepper", "Paprika"},
+		{2, time.Date(0, 9, 1, 0, 0, 0, 0, time.UTC), "Salt", "Paprika"},
+	}
+	setGames(games)
+
+	for id, game := range games {
+		url := fmt.Sprintf("/games/%d", id)
+		request, _ := http.NewRequest(http.MethodGet, url, nil)
+		response := httptest.NewRecorder()
+
+		RootServer(response, request)
+
+		got := response.Body.String()
+		want, err := json.Marshal(game)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if got != string(want)+"\n" {
+			t.Errorf("got %q, want %q", got, want)
+		}
+	}
+}
 
 func TestGETGameList(t *testing.T) {
 	setGames([]Game{

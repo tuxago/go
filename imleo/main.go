@@ -88,6 +88,15 @@ func GameServer(w http.ResponseWriter, r *http.Request) {
 		games := GetGameList()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(games)
+	} else {
+		for _, game := range games {
+			if game.Id == id {
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(game)
+				return
+			}
+		}
+		fmt.Fprint(w, "game does not exist")
 	}
 }
 
