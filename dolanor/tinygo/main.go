@@ -1,20 +1,31 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/tuxago/go/dolanor/tinygo/hw/led"
+	"github.com/tuxago/go/dolanor/tinygo/hw/led/realled"
 )
 
 func main() {
-	blink()
+	var l led.LED
+
+	l = realled.NewReal()
+
+	// blinkSimple(l)
+	blinkWithGoroutine(l)
 }
 
-func blink() {
-	ledCtrl := make(chan bool, 10)
+func blinkSimple(l led.LED) {
+	for {
+		time.Sleep(time.Millisecond * 100)
+		l.Toggle()
+	}
+}
 
-	l := led.New()
+func blinkWithGoroutine(l led.LED) {
+	ledCtrl := make(chan bool, 10)
 
 	go func() {
 		for {
@@ -30,20 +41,9 @@ func blink() {
 		time.Sleep(time.Millisecond * 100)
 
 		ledState = !ledState
-		fmt.Println(ledState)
-		//toggleLED(led, ledState)
+		log.Println(ledState)
 
 		ledCtrl <- ledState
 
-		// println("[STM32] blink")
 	}
 }
-
-//func toggleLED(led *machine.Pin, state *bool) {
-//	*state = !*state
-//	if *state {
-//		led.Low()
-//	} else {
-//		led.High()
-//	}
-//}
