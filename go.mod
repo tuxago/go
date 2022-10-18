@@ -1,4 +1,4 @@
-module github.com/Louis-de-Lavenne-de-Choulot/go
+module github.com/tuxago/go
 
 go 1.16
 
