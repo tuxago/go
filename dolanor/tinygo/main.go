@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/tuxago/go/dolanor/tinygo/hw/led"
-	"github.com/tuxago/go/dolanor/tinygo/hw/led/realled"
+	"github.com/Louis-de-Lavenne-de-Choulot/go/dolanor/tinygo/hw/led"
+	"github.com/Louis-de-Lavenne-de-Choulot/go/dolanor/tinygo/hw/led/realled"
 )
 
 func main() {
