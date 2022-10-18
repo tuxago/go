@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	jsonhandler "github.com/Louis-de-Lavenne-de-Choulot/go/BestGroup/json_handler"
 	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/camera"
 	"github.com/g3n/engine/core"
@@ -22,6 +21,7 @@ import (
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/texture"
 	"github.com/g3n/engine/window"
+	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 )
 
 var (
