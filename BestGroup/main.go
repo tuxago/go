@@ -29,10 +29,14 @@ func main() {
 	//init the json_handler package
 	//playerStore.(*jsonhandler.PlayerStorage).InitJSON("players.json")
 	//backup()
-	playerDB := db.NewDB()
-	playerstoreDB := db.PlayerStore{db: playerDB}
-	playerstoreDB.InitDB()
-	playerStore = &playerstoreDB
+	playerDB := playerdb.NewDB()
+	playerdb.InitDB(playerDB)
+
+	playerstoreDB := playerdb.NewPlayerStore(playerDB)
+
+	playerStore = playerstoreDB
+
+	log.Println("running")
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
