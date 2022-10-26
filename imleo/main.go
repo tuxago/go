@@ -145,3 +145,33 @@ func resetScores() {
 		player.Score = 0
 	}
 }
+
+func SortPlayersByScore(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Score > players[j].Score
+	})
+	return players
+}
+
+func SortPlayersByName(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Name < players[j].Name
+	})
+	return players
+}
+func TournamentPrizes(player []Player) []int {
+	player = SortPlayersByScore(player)
+	prizes := []int{}
+	for player := range player {
+		if player == 0 {
+			prizes = append(prizes, 100)
+		} else if player == 1 {
+			prizes = append(prizes, 50)
+		} else if player == 2 {
+			prizes = append(prizes, 25)
+		} else {
+			prizes = append(prizes, 0)
+		}
+	}
+	return prizes
+}

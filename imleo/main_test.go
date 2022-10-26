@@ -150,3 +150,31 @@ func TestPlayerList(t *testing.T) {
 		t.Errorf("go %v, want %v", got, want)
 	}
 }
+
+func TestSortPlayersByScore(t *testing.T) {
+
+	got := SortPlayersByScore(players)
+	want := []Player{
+		{"Paprika", 30},
+		{"Pepper", 20},
+		{"Salt", 10},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestSortPlayersByName(t *testing.T) {
+	
+	got := SortPlayersByName(players)
+	want := []Player{
+		{"Paprika", 30},
+		{"Pepper", 20},
+		{"Salt", 10},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}

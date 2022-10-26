@@ -2,7 +2,10 @@ module github.com/tuxago/go
 
 go 1.19
 
-require github.com/g3n/engine v0.2.0
+require (
+	github.com/g3n/engine v0.2.0
+	github.com/tinygo-org/tinygo v0.26.0
+)
 
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb // indirect
