@@ -16,10 +16,14 @@ var PlayerWins = map[string]int{
 	"Salt":   0,
 }
 
-var logfile string = "./server.log"
-var logmutex sync.Mutex
+var (
+	logfile  string = "./server.log"
+	logmutex sync.Mutex
+	store    PlayerStorage
+)
 
 func main() {
+	store = jsonhandler.NewPlayerStorage("players.json")
 	//init the json_handler package
 	jsonhandler.InitJSON("players.json")
 	backup()
@@ -60,7 +64,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//get or post
 	switch r.Method {
 	case http.MethodPost:
-		wins, err := jsonhandler.SetPlayer(player)
+		wins, err := store.IncWins(player)
 		if err != nil {
 			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
@@ -70,7 +74,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodGet:
-		_player, err := jsonhandler.GetPlayer(player)
+		_player, err := store.GetPlayer(player)
 		if err != nil {
 			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")

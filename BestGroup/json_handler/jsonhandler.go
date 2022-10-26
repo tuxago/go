@@ -21,10 +21,10 @@ type JPlayer struct {
 	Wins int
 }
 
-var (
+type PlayerStorage struct {
 	muPlayers sync.RWMutex
 	Players   JPlayers
-)
+}
 
 func InitJSON(jsonI string) error {
 	jsonFile, err := os.Open(jsonI)
@@ -40,6 +40,10 @@ func InitJSON(jsonI string) error {
 	}
 	json.Unmarshal(byteValue, &Players)
 	return nil
+}
+
+func NewPlayerStorage() Storage {
+	return Storage
 }
 
 func SaveJSON(jsonI string) error {
@@ -77,7 +81,7 @@ func GetPlayer(name string) (JPlayer, error) {
 	return JPlayer{}, errors.New("player not found in getplayer")
 }
 
-func SetPlayer(name string) (int, error) {
+func IncWins(name string) (int, error) {
 	muPlayers.Lock()
 	defer muPlayers.Unlock()
 	for i, player := range Players.Players {
