@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/tuxago/go/BestGroup/store"
+	"github.com/tuxago/go/BestGroup/store/db"
 	jsonhandler "github.com/tuxago/go/BestGroup/store/json_handler"
 )
 
@@ -24,10 +25,14 @@ var (
 )
 
 func main() {
-	playerStore = jsonhandler.NewPlayerStorage()
+	//playerStore = jsonhandler.NewPlayerStorage()
 	//init the json_handler package
-	playerStore.(*jsonhandler.PlayerStorage).InitJSON("players.json")
-	backup()
+	//playerStore.(*jsonhandler.PlayerStorage).InitJSON("players.json")
+	//backup()
+	playerDB := db.NewDB()
+	playerstoreDB := db.PlayerStore{db: playerDB}
+	playerstoreDB.InitDB()
+	playerStore = &playerstoreDB
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {

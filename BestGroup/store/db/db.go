@@ -2,7 +2,42 @@ package db
 
 import (
 	"database/sql"
+
+	"github.com/tuxago/go/BestGroup/store"
 )
+
+type PlayerStore struct {
+	db *sql.DB
+}
+
+func (ps *PlayerStore) GetPlayer(name string) (store.Player, error) {
+	playerName, wins, err := GetPlayer(ps.db, name)
+	if err != nil {
+		return store.Player{}, err
+	}
+	return store.Player{Name: playerName, Wins: wins}, nil
+}
+func (ps *PlayerStore) IncWins(name string) (int, error) {
+	wins, err := IncWins(ps.db, name)
+	if err != nil {
+		return -1, err
+	}
+	return wins, nil
+}
+func (ps *PlayerStore) RemovePlayer(name string) error {
+	err := RemovePlayer(ps.db, name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (ps *PlayerStore) AddPlayer(name string) error {
+	err := AddPlayer(ps.db, name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func NewDB() *sql.DB {
 	db, err := sql.Open("sqlite3", "./test.db")
