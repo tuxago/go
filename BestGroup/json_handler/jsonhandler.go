@@ -9,24 +9,16 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/tuxago/go/BestGroup/store"
 )
-
-// Deserialize JPlayers
-type JPlayers struct {
-	Players []JPlayer
-}
-
-type JPlayer struct {
-	Name string
-	Wins int
-}
 
 type PlayerStorage struct {
 	muPlayers sync.RWMutex
-	Players   JPlayers
+	Players   store.Players
 }
 
-func InitJSON(jsonI string) error {
+func (ps *PlayerStorage) InitJSON(jsonI string) error {
 	jsonFile, err := os.Open(jsonI)
 	if err != nil {
 		return err
@@ -38,7 +30,7 @@ func InitJSON(jsonI string) error {
 	if err != nil {
 		return err
 	}
-	json.Unmarshal(byteValue, &Players)
+	json.Unmarshal(byteValue, &ps.Players)
 	return nil
 }
 
@@ -46,9 +38,9 @@ func NewPlayerStorage() *PlayerStorage {
 	return &PlayerStorage{}
 }
 
-func SaveJSON(jsonI string) error {
-	muPlayers.Lock()
-	defer muPlayers.Unlock()
+func (ps *PlayerStorage) SaveJSON(jsonI string) error {
+	ps.muPlayers.Lock()
+	defer ps.muPlayers.Unlock()
 	// open output file
 	jsonFile, err := os.OpenFile(jsonI, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -57,7 +49,7 @@ func SaveJSON(jsonI string) error {
 	defer jsonFile.Close()
 
 	// convert to json
-	jsonData, err := json.Marshal(Players)
+	jsonData, err := json.Marshal(ps.Players)
 	if err != nil {
 		return err
 	}
@@ -70,36 +62,36 @@ func SaveJSON(jsonI string) error {
 	return nil
 }
 
-func GetPlayer(name string) (JPlayer, error) {
-	muPlayers.RLock()
-	defer muPlayers.RUnlock()
-	for _, player := range Players.Players {
+func (ps *PlayerStorage) GetPlayer(name string) (store.Player, error) {
+	ps.muPlayers.RLock()
+	defer ps.muPlayers.RUnlock()
+	for _, player := range ps.Players.Players {
 		if player.Name == name {
 			return player, nil
 		}
 	}
-	return JPlayer{}, errors.New("player not found in getplayer")
+	return store.Player{}, errors.New("player not found in getplayer")
 }
 
-func IncWins(name string) (int, error) {
-	muPlayers.Lock()
-	defer muPlayers.Unlock()
-	for i, player := range Players.Players {
+func (ps *PlayerStorage) IncWins(name string) (int, error) {
+	ps.muPlayers.Lock()
+	defer ps.muPlayers.Unlock()
+	for i, player := range ps.Players.Players {
 		if player.Name == name {
-			wins := Players.Players[i].Wins + 1
-			Players.Players[i].Wins = wins
+			wins := ps.Players.Players[i].Wins + 1
+			ps.Players.Players[i].Wins = wins
 			return wins, nil
 		}
 	}
 	return -1, errors.New("player not found in setplayer")
 }
 
-func RemovePlayer(name string) error {
-	muPlayers.Lock()
-	defer muPlayers.Unlock()
-	for i, player := range Players.Players {
+func (ps *PlayerStorage) RemovePlayer(name string) error {
+	ps.muPlayers.Lock()
+	defer ps.muPlayers.Unlock()
+	for i, player := range ps.Players.Players {
 		if player.Name == name {
-			Players.Players = append(Players.Players[:i], Players.Players[i+1:]...)
+			ps.Players.Players = append(ps.Players.Players[:i], ps.Players.Players[i+1:]...)
 			return nil
 		}
 	}
@@ -114,23 +106,23 @@ func (ps *PlayerStorage) AddPlayer(name string) error {
 			return errors.New("player already exists")
 		}
 	}
-	ps.Players.Players = append(ps.Players.Players, JPlayer{Name: name, Wins: 0})
+	ps.Players.Players = append(ps.Players.Players, store.Player{Name: name, Wins: 0})
 	return nil
 }
 
-func FormatPlayers(format string) (string, error) {
-	muPlayers.RLock()
-	defer muPlayers.RUnlock()
+func (ps *PlayerStorage) FormatPlayers(format string) (string, error) {
+	ps.muPlayers.RLock()
+	defer ps.muPlayers.RUnlock()
 	// sort players by name
-	sort.SliceStable(Players.Players, func(i, j int) bool {
-		return Players.Players[i].Name < Players.Players[j].Name
+	sort.SliceStable(ps.Players.Players, func(i, j int) bool {
+		return ps.Players.Players[i].Name < ps.Players.Players[j].Name
 	})
 
 	switch format {
 	case "string":
 		// Players to string in var str
 		var str string
-		for _, player := range Players.Players {
+		for _, player := range ps.Players.Players {
 			str += player.Name + " " + strconv.Itoa(player.Wins) + "\n"
 		}
 		return str, nil
@@ -138,7 +130,7 @@ func FormatPlayers(format string) (string, error) {
 		var str string
 		str += "Name,Wins\n"
 		// Players to string in var str
-		for _, player := range Players.Players {
+		for _, player := range ps.Players.Players {
 			str += player.Name + "," + strconv.Itoa(player.Wins) + "\n"
 		}
 		return str, nil
@@ -147,7 +139,7 @@ func FormatPlayers(format string) (string, error) {
 		str += "<table>\n"
 		str += "<tr><th>Name</th><th>Wins</th></tr>\n"
 		// Players to string in var str
-		for _, player := range Players.Players {
+		for _, player := range ps.Players.Players {
 			str += "<tr><td>" + player.Name + "</td><td>" + strconv.Itoa(player.Wins) + "</td></tr>\n"
 		}
 		str += "</table>\n"
@@ -156,7 +148,7 @@ func FormatPlayers(format string) (string, error) {
 		var str string
 		str += "<players>\n"
 		// Players to string in var str
-		for _, player := range Players.Players {
+		for _, player := range ps.Players.Players {
 			str += "<player>\n"
 			str += "<name>" + player.Name + "</name>\n"
 			str += "<wins>" + strconv.Itoa(player.Wins) + "</wins>\n"
@@ -166,7 +158,7 @@ func FormatPlayers(format string) (string, error) {
 		return str, nil
 	default:
 		// convert to json
-		jsonData, err := json.Marshal(Players)
+		jsonData, err := json.Marshal(ps.Players)
 		if err != nil {
 			return "", err
 		}
@@ -175,14 +167,14 @@ func FormatPlayers(format string) (string, error) {
 }
 
 // Make backups of the json file in 3 other files
-func Backup(timeMult int, jsonI2 string, jsonI3 string, jsonI4 string) {
+func (ps *PlayerStorage) Backup(timeMult int, jsonI2 string, jsonI3 string, jsonI4 string) {
 	// make a goroutine backup of the original file every 30 minute in jsonI2, jsonI3, jsonI4
 	go func() {
 		nbrTrack := 0
 		for range time.Tick(time.Duration(timeMult) * time.Minute) {
 			func() {
-				muPlayers.Lock()
-				defer muPlayers.Unlock()
+				ps.muPlayers.Lock()
+				defer ps.muPlayers.Unlock()
 				var jsonFile *os.File
 				var err error
 				switch nbrTrack {
@@ -207,7 +199,7 @@ func Backup(timeMult int, jsonI2 string, jsonI3 string, jsonI4 string) {
 				defer jsonFile.Close()
 
 				// convert to json
-				jsonData, err := json.Marshal(Players)
+				jsonData, err := json.Marshal(ps.Players)
 				if err != nil {
 					return
 				}

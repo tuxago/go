@@ -26,7 +26,7 @@ var (
 func main() {
 	playerStore = jsonhandler.NewPlayerStorage()
 	//init the json_handler package
-	jsonhandler.InitJSON("players.json")
+	playerStore.(*jsonhandler.PlayerStorage).InitJSON("players.json")
 	backup()
 	http.HandleFunc("/players/", PlayerServer)
 	err := http.ListenAndServe(":8080", nil)
@@ -49,7 +49,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := jsonhandler.FormatPlayers(format)
+			list, err := playerStore.(*jsonhandler.PlayerStorage).FormatPlayers(format)
 			if err != nil {
 			} else {
 				loganswer("List of Players")
@@ -122,5 +122,5 @@ func loganswer(answer string) {
 
 func backup() {
 	//backup the players.json file
-	jsonhandler.Backup(30, "save.json", "save2.json", "save3.json")
+	playerStore.(*jsonhandler.PlayerStorage).Backup(30, "save.json", "save2.json", "save3.json")
 }
