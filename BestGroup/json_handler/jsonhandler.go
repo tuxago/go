@@ -42,8 +42,8 @@ func InitJSON(jsonI string) error {
 	return nil
 }
 
-func NewPlayerStorage() Storage {
-	return Storage
+func NewPlayerStorage() *PlayerStorage {
+	return &PlayerStorage{}
 }
 
 func SaveJSON(jsonI string) error {
@@ -106,15 +106,15 @@ func RemovePlayer(name string) error {
 	return errors.New("player not found in removeplayer")
 }
 
-func AddPlayer(name string) error {
-	muPlayers.Lock()
-	defer muPlayers.Unlock()
-	for _, player := range Players.Players {
+func (ps *PlayerStorage) AddPlayer(name string) error {
+	ps.muPlayers.Lock()
+	defer ps.muPlayers.Unlock()
+	for _, player := range ps.Players.Players {
 		if player.Name == name {
 			return errors.New("player already exists")
 		}
 	}
-	Players.Players = append(Players.Players, JPlayer{Name: name, Wins: 0})
+	ps.Players.Players = append(ps.Players.Players, JPlayer{Name: name, Wins: 0})
 	return nil
 }
 

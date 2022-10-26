@@ -9,6 +9,7 @@ import (
 	"time"
 
 	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
+	"github.com/tuxago/go/BestGroup/store"
 )
 
 var PlayerWins = map[string]int{
@@ -17,13 +18,13 @@ var PlayerWins = map[string]int{
 }
 
 var (
-	logfile  string = "./server.log"
-	logmutex sync.Mutex
-	store    PlayerStorage
+	logfile     string = "./server.log"
+	logmutex    sync.Mutex
+	playerStore store.PlayerStorage
 )
 
 func main() {
-	store = jsonhandler.NewPlayerStorage("players.json")
+	playerStore = jsonhandler.NewPlayerStorage()
 	//init the json_handler package
 	jsonhandler.InitJSON("players.json")
 	backup()
@@ -64,7 +65,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//get or post
 	switch r.Method {
 	case http.MethodPost:
-		wins, err := store.IncWins(player)
+		wins, err := playerStore.IncWins(player)
 		if err != nil {
 			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
@@ -74,7 +75,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodGet:
-		_player, err := store.GetPlayer(player)
+		_player, err := playerStore.GetPlayer(player)
 		if err != nil {
 			loganswer("Player " + player + " doesn't exist")
 			fmt.Fprint(w, "Player "+player+" doesn't exist")
