@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
 	"github.com/tuxago/go/BestGroup/store"
+	jsonhandler "github.com/tuxago/go/BestGroup/store/json_handler"
 )
 
 var PlayerWins = map[string]int{

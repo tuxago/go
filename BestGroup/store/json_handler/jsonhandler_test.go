@@ -2,13 +2,16 @@ package jsonhandler
 
 import (
 	"testing"
+
+	"github.com/tuxago/go/BestGroup/store"
 )
 
 var Json string = "test.json"
 
 func TestInitJSON(t *testing.T) {
 	t.Run("TestInitJSON", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+		err := ps.InitJSON(Json)
 		//if Players is empty, then the test fails
 		if err != nil {
 			t.Errorf("Error in InitJSON, %v", err)
@@ -18,22 +21,23 @@ func TestInitJSON(t *testing.T) {
 
 func TestSaveJSON(t *testing.T) {
 	t.Run("TestSaveJSON", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON %v", err)
 		}
 		//add a new player to the list
-		Players.Players = append(Players.Players, JPlayer{Name: "Test", Wins: 0})
-		err = SaveJSON(Json)
+		ps.Players.Players = append(ps.Players.Players, store.Player{Name: "Test", Wins: 0})
+		err = ps.SaveJSON(Json)
 		if err != nil {
 			t.Errorf("Error in SaveJSON %v", err)
 		}
-		err = InitJSON(Json)
+		err = ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON %v", err)
 		}
 		//if Players does not contain Name : Test with Wins :0, then the test fails
-		if Players.Players[len(Players.Players)-1].Name != "Test" || Players.Players[len(Players.Players)-1].Wins != 0 {
+		if ps.Players.Players[len(ps.Players.Players)-1].Name != "Test" || ps.Players.Players[len(ps.Players.Players)-1].Wins != 0 {
 			t.Errorf("Players.JPlayers does not contain Name : Test with Wins :0")
 		}
 	})
@@ -42,23 +46,24 @@ func TestSaveJSON(t *testing.T) {
 
 func TestAddPlayer(t *testing.T) {
 	t.Run("TestAddPlayer", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		err = AddPlayer("Test1")
+		err = ps.AddPlayer("Test1")
 		if err != nil {
 			t.Errorf("Error in AddPlayer")
 		}
-		err = SaveJSON(Json)
+		err = ps.SaveJSON(Json)
 		if err != nil {
 			t.Errorf("Error in SaveJSON")
 		}
-		err = InitJSON(Json)
+		err = ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON")
 		}
-		player, err := GetPlayer("Test1")
+		player, err := ps.GetPlayer("Test1")
 		if player.Name != "Test1" || err != nil {
 			t.Errorf("Players.JPlayers does not contain Name : Test with Wins :0, or an error : %v", err)
 		}
@@ -67,11 +72,13 @@ func TestAddPlayer(t *testing.T) {
 
 func TestSetPlayer(t *testing.T) {
 	t.Run("TestSetPlayer 'Test' wins", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		wins, err := SetPlayer("Test")
+		wins, err := ps.IncWins("Test")
 		if err != nil {
 			t.Errorf("Error in SetPlayer")
 		}
@@ -80,11 +87,13 @@ func TestSetPlayer(t *testing.T) {
 		}
 	})
 	t.Run("TestSetPlayer 'Test123' wins and get error", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		_, err = SetPlayer("Test123")
+		_, err = ps.IncWins("Test123")
 		if err == nil {
 			t.Errorf("no error in SetPlayer")
 		}
@@ -92,37 +101,41 @@ func TestSetPlayer(t *testing.T) {
 }
 
 func TestGetPlayer(t *testing.T) {
-	InitJSON(Json)
+	ps := NewPlayerStorage()
+
+	ps.InitJSON(Json)
 	//if GetPlayer returns an empty JPlayer, then the test fails
-	player, err := GetPlayer("Test")
-	if player == (JPlayer{}) || err != nil {
+	player, err := ps.GetPlayer("Test")
+	if player == (store.Player{}) || err != nil {
 		t.Errorf("GetPlayer(\"Test\") returned an empty JPlayer, or an error : %v", err)
 	}
 }
 
 func TestRemovePlayer(t *testing.T) {
 	t.Run("TestRemoveJSON", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		err = RemovePlayer("Test")
+		err = ps.RemovePlayer("Test")
 		if err != nil {
 			t.Errorf("Error in RemovePlayer")
 		}
-		err = RemovePlayer("Test1")
+		err = ps.RemovePlayer("Test1")
 		if err != nil {
 			t.Errorf("Error in RemovePlayer")
 		}
-		err = SaveJSON(Json)
+		err = ps.SaveJSON(Json)
 		if err != nil {
 			t.Errorf("Error in SaveJSON")
 		}
-		err = InitJSON(Json)
+		err = ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in second InitJSON")
 		}
-		player, err := GetPlayer("Test")
+		player, err := ps.GetPlayer("Test")
 		if player.Name == "Test" || err.Error() != "player not found in getplayer" {
 			t.Errorf("Players.JPlayers does contain Name : Test with Wins :0, or an error : %v", err)
 		}
@@ -131,11 +144,13 @@ func TestRemovePlayer(t *testing.T) {
 
 func TestFormatPlayers(t *testing.T) {
 	t.Run("TestFormatPlayers", func(t *testing.T) {
-		err := InitJSON(Json)
+		ps := NewPlayerStorage()
+
+		err := ps.InitJSON(Json)
 		if err != nil {
 			t.Errorf("Error in InitJSON")
 		}
-		players, err := FormatPlayers("")
+		players, err := ps.FormatPlayers("")
 		if err != nil {
 			t.Errorf("Error in GetPlayers")
 		}
