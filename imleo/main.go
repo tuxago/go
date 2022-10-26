@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -19,19 +21,37 @@ var players = []Player{
 }
 
 func main() {
-	http.HandleFunc("/players/", PlayerServer)
+	http.HandleFunc("/", RootServer)
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("starting the server on port 8080")
+}
+
+func RootServer(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		fmt.Fprint(w, "Hello")
+		return
+	}
+
+	sub := strings.Split(r.URL.Path, "/")[1]
+	switch sub {
+	case "players":
+		PlayerServer(w, r)
+	case "games":
+		GameServer(w, r)
+	default:
+		fmt.Fprint(w, "404: Not found")
+	}
 }
 
 func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, "/")
 	name := ""
-	if len(split) >= 2 {
+	if len(split) >= 3 {
 		name = split[2]
 	}
 
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		if name == "" {
 			names := GetPlayerList()
 			w.Header().Set("Content-Type", "application/json")
@@ -40,8 +60,43 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 			score := GetScore(name)
 			fmt.Fprint(w, score)
 		}
-	} else {
+	case http.MethodPost:
 		IncreaseScore(name)
+	default:
+		fmt.Fprint(w, "unkown method")
+	}
+}
+
+func GameServer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		fmt.Fprint(w, "unkown method")
+		return
+	}
+
+	split := strings.Split(r.URL.Path, "/")
+	id := -1
+	if len(split) >= 3 && split[2] != "" {
+		var err error
+		id, err = strconv.Atoi(split[2])
+		if err != nil {
+			fmt.Fprintf(w, "invalid id %q", split[2])
+			return
+		}
+	}
+
+	if id == -1 {
+		games := GetGameList()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(games)
+	} else {
+		for _, game := range games {
+			if game.Id == id {
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(game)
+				return
+			}
+		}
+		fmt.Fprint(w, "game does not exist")
 	}
 }
 
@@ -50,6 +105,7 @@ func GetPlayerList() []string {
 	for _, player := range players {
 		names = append(names, player.Name)
 	}
+	sort.Strings(names)
 	return names
 }
 
@@ -88,4 +144,34 @@ func resetScores() {
 	for _, player := range players {
 		player.Score = 0
 	}
+}
+
+func SortPlayersByScore(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Score > players[j].Score
+	})
+	return players
+}
+
+func SortPlayersByName(players []Player) []Player {
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Name < players[j].Name
+	})
+	return players
+}
+func TournamentPrizes(player []Player) []int {
+	player = SortPlayersByScore(player)
+	prizes := []int{}
+	for player := range player {
+		if player == 0 {
+			prizes = append(prizes, 100)
+		} else if player == 1 {
+			prizes = append(prizes, 50)
+		} else if player == 2 {
+			prizes = append(prizes, 25)
+		} else {
+			prizes = append(prizes, 0)
+		}
+	}
+	return prizes
 }
