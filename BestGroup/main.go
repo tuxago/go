@@ -2,15 +2,19 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/tuxago/go/BestGroup/format"
 	"github.com/tuxago/go/BestGroup/store"
-	"github.com/tuxago/go/BestGroup/store/db"
+	playerdb "github.com/tuxago/go/BestGroup/store/db"
 	jsonhandler "github.com/tuxago/go/BestGroup/store/json_handler"
+
+	_ "modernc.org/sqlite"
 )
 
 var PlayerWins = map[string]int{
@@ -54,11 +58,16 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players")
 
 	// check if the option ?format is present and get the value
-	format := r.URL.Query().Get("format")
+	dataFormat := r.URL.Query().Get("format")
 
 	if player == "" || player == "/" {
 		if r.Method == http.MethodGet {
-			list, err := playerStore.(*jsonhandler.PlayerStorage).FormatPlayers(format)
+			players, err := playerStore.GetAllPlayers()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			list, err := format.FormatPlayers(dataFormat, players)
 			if err != nil {
 			} else {
 				loganswer("List of Players")

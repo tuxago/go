@@ -21,7 +21,7 @@ import (
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/texture"
 	"github.com/g3n/engine/window"
-	jsonhandler "github.com/tuxago/go/BestGroup/json_handler"
+	jsonhandler "github.com/tuxago/go/BestGroup/store/json_handler"
 )
 
 var (

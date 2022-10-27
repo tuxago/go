@@ -15,7 +15,7 @@ import (
 
 type PlayerStorage struct {
 	muPlayers sync.RWMutex
-	Players   store.Players
+	Players   []store.Player
 }
 
 func (ps *PlayerStorage) InitJSON(jsonI string) error {
@@ -65,7 +65,7 @@ func (ps *PlayerStorage) SaveJSON(jsonI string) error {
 func (ps *PlayerStorage) GetPlayer(name string) (store.Player, error) {
 	ps.muPlayers.RLock()
 	defer ps.muPlayers.RUnlock()
-	for _, player := range ps.Players.Players {
+	for _, player := range ps.Players {
 		if player.Name == name {
 			return player, nil
 		}
@@ -76,10 +76,10 @@ func (ps *PlayerStorage) GetPlayer(name string) (store.Player, error) {
 func (ps *PlayerStorage) IncWins(name string) (int, error) {
 	ps.muPlayers.Lock()
 	defer ps.muPlayers.Unlock()
-	for i, player := range ps.Players.Players {
+	for i, player := range ps.Players {
 		if player.Name == name {
-			wins := ps.Players.Players[i].Wins + 1
-			ps.Players.Players[i].Wins = wins
+			wins := ps.Players[i].Wins + 1
+			ps.Players[i].Wins = wins
 			return wins, nil
 		}
 	}
@@ -89,9 +89,9 @@ func (ps *PlayerStorage) IncWins(name string) (int, error) {
 func (ps *PlayerStorage) RemovePlayer(name string) error {
 	ps.muPlayers.Lock()
 	defer ps.muPlayers.Unlock()
-	for i, player := range ps.Players.Players {
+	for i, player := range ps.Players {
 		if player.Name == name {
-			ps.Players.Players = append(ps.Players.Players[:i], ps.Players.Players[i+1:]...)
+			ps.Players = append(ps.Players[:i], ps.Players[i+1:]...)
 			return nil
 		}
 	}
@@ -101,28 +101,39 @@ func (ps *PlayerStorage) RemovePlayer(name string) error {
 func (ps *PlayerStorage) AddPlayer(name string) error {
 	ps.muPlayers.Lock()
 	defer ps.muPlayers.Unlock()
-	for _, player := range ps.Players.Players {
+	for _, player := range ps.Players {
 		if player.Name == name {
 			return errors.New("player already exists")
 		}
 	}
-	ps.Players.Players = append(ps.Players.Players, store.Player{Name: name, Wins: 0})
+	ps.Players = append(ps.Players, store.Player{Name: name, Wins: 0})
 	return nil
 }
 
-func (ps *PlayerStorage) FormatPlayers(format string) (string, error) {
+func (ps *PlayerStorage) GetAllPlayers() ([]store.Player, error) {
+	ps.muPlayers.RLock()
+	defer ps.muPlayers.RUnlock()
+
+	var players []store.Player
+	// we create a full copy of the slice, to avoid access outside of the lock
+	copy(players, ps.Players)
+
+	return players, nil
+}
+
+func (ps *PlayerStorage) FormatPlayers_old(format string) (string, error) {
 	ps.muPlayers.RLock()
 	defer ps.muPlayers.RUnlock()
 	// sort players by name
-	sort.SliceStable(ps.Players.Players, func(i, j int) bool {
-		return ps.Players.Players[i].Name < ps.Players.Players[j].Name
+	sort.SliceStable(ps.Players, func(i, j int) bool {
+		return ps.Players[i].Name < ps.Players[j].Name
 	})
 
 	switch format {
 	case "string":
 		// Players to string in var str
 		var str string
-		for _, player := range ps.Players.Players {
+		for _, player := range ps.Players {
 			str += player.Name + " " + strconv.Itoa(player.Wins) + "\n"
 		}
 		return str, nil
@@ -130,7 +141,7 @@ func (ps *PlayerStorage) FormatPlayers(format string) (string, error) {
 		var str string
 		str += "Name,Wins\n"
 		// Players to string in var str
-		for _, player := range ps.Players.Players {
+		for _, player := range ps.Players {
 			str += player.Name + "," + strconv.Itoa(player.Wins) + "\n"
 		}
 		return str, nil
@@ -139,7 +150,7 @@ func (ps *PlayerStorage) FormatPlayers(format string) (string, error) {
 		str += "<table>\n"
 		str += "<tr><th>Name</th><th>Wins</th></tr>\n"
 		// Players to string in var str
-		for _, player := range ps.Players.Players {
+		for _, player := range ps.Players {
 			str += "<tr><td>" + player.Name + "</td><td>" + strconv.Itoa(player.Wins) + "</td></tr>\n"
 		}
 		str += "</table>\n"
@@ -148,7 +159,7 @@ func (ps *PlayerStorage) FormatPlayers(format string) (string, error) {
 		var str string
 		str += "<players>\n"
 		// Players to string in var str
-		for _, player := range ps.Players.Players {
+		for _, player := range ps.Players {
 			str += "<player>\n"
 			str += "<name>" + player.Name + "</name>\n"
 			str += "<wins>" + strconv.Itoa(player.Wins) + "</wins>\n"

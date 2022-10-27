@@ -1,4 +1,4 @@
-package db
+package playerdb
 
 import (
 	"database/sql"
@@ -10,6 +10,12 @@ type PlayerStore struct {
 	db *sql.DB
 }
 
+func NewPlayerStore(db *sql.DB) *PlayerStore {
+	return &PlayerStore{
+		db: db,
+	}
+}
+
 func (ps *PlayerStore) GetPlayer(name string) (store.Player, error) {
 	playerName, wins, err := GetPlayer(ps.db, name)
 	if err != nil {
@@ -17,6 +23,7 @@ func (ps *PlayerStore) GetPlayer(name string) (store.Player, error) {
 	}
 	return store.Player{Name: playerName, Wins: wins}, nil
 }
+
 func (ps *PlayerStore) IncWins(name string) (int, error) {
 	wins, err := IncWins(ps.db, name)
 	if err != nil {
@@ -24,6 +31,7 @@ func (ps *PlayerStore) IncWins(name string) (int, error) {
 	}
 	return wins, nil
 }
+
 func (ps *PlayerStore) RemovePlayer(name string) error {
 	err := RemovePlayer(ps.db, name)
 	if err != nil {
@@ -31,6 +39,7 @@ func (ps *PlayerStore) RemovePlayer(name string) error {
 	}
 	return nil
 }
+
 func (ps *PlayerStore) AddPlayer(name string) error {
 	err := AddPlayer(ps.db, name)
 	if err != nil {
@@ -39,23 +48,20 @@ func (ps *PlayerStore) AddPlayer(name string) error {
 	return nil
 }
 
+func (ps *PlayerStore) GetAllPlayers() ([]store.Player, error) {
+	players, err := GetAllPlayers(ps.db)
+	if err != nil {
+		return []store.Player{}, err
+	}
+	return players, nil
+}
+
 func NewDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./test.db")
+	db, err := sql.Open("sqlite", "./test.db")
 	if err != nil {
 		panic(err)
 	}
 	return db
-}
-
-func InitDB(db *sql.DB) {
-	sqlStmt := `
-	create table if not exists players (id integer not null primary key, name text, wins integer);
-	delete from players;
-	`
-	_, err := db.Exec(sqlStmt)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func AddPlayer(db *sql.DB, name string) error {
@@ -131,4 +137,31 @@ func RemovePlayer(db *sql.DB, name string) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func GetAllPlayers(db *sql.DB) ([]store.Player, error) {
+	rows, err := db.Query("select name, wins from players")
+	if err != nil {
+		return []store.Player{}, err
+	}
+	defer rows.Close()
+	var playerName string
+	var wins int
+	var players []store.Player
+	for rows.Next() {
+		err = rows.Scan(&playerName, &wins)
+		if err != nil {
+			return []store.Player{}, err
+		}
+		player := store.Player{
+			Name: playerName,
+			Wins: wins,
+		}
+		players = append(players, player)
+	}
+	err = rows.Err()
+	if err != nil {
+		return []store.Player{}, err
+	}
+	return players, nil
 }
